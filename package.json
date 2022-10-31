@@ -1,0 +1,25 @@
+{
+  "name": "@hexlet/code",
+  "description": "[![Actions Status](https://github.com/Romzik-Peperomzik/frontend-project-11/workflows/hexlet-check/badge.svg)](https://github.com/Romzik-Peperomzik/frontend-project-11/actions)",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Romzik-Peperomzik/frontend-project-11.git"
+  },
+  "author": "romzik",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Romzik-Peperomzik/frontend-project-11/issues"
+  },
+  "homepage": "https://github.com/Romzik-Peperomzik/frontend-project-11#readme",
+  "devDependencies": {
+    "eslint": "^8.26.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.26.0"
+  }
+}
