@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin'); // eslint-disable-line
 module.exports = {
   mode: process.env.NODE_ENV || 'development',
   devServer: {
-    port: 3000,
+    port: 8001,
     open: true,
     hot: true,
   },
@@ -18,6 +18,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
+      inject: false,
       template: 'index.html',
     }),
   ],
