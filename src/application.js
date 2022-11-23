@@ -1,6 +1,10 @@
 import i18next from 'i18next';
+import onChange from 'on-change';
 import { string, setLocale } from 'yup';
-import view from './view.js';
+import {
+  renderRssForm,
+  renderRssFormError,
+} from './view.js';
 import resources from './locales/index.js';
 
 const validateUrl = (state, url) => {
@@ -8,7 +12,22 @@ const validateUrl = (state, url) => {
   return schema.validate(url);
 };
 
-const runApp = (state, elements) => {
+const runApp = (initialState, elements, i18n) => {
+  const state = onChange(initialState, (path, value) => { // previousValue
+    switch (path) {
+      case 'rssForm.status':
+        renderRssForm(value, elements);
+        break;
+      case 'channels':
+        break;
+      case 'rssForm.errors':
+        renderRssFormError(value, elements, i18n);
+        break;
+      default:
+        throw new Error(`Unknown state path: ${path}`);
+    }
+  });
+
   const { form } = elements;
   form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -56,9 +75,9 @@ const initApp = () => {
         input: document.getElementById('url-input'),
         feedback: document.querySelector('.feedback'),
       };
-      const state = view(initialState, elements, i18n);
+      // const state = view(initialState, elements, i18n);
 
-      runApp(state, elements);
+      runApp(initialState, elements, i18n);
     })
     .catch((e) => console.error(e));
 };

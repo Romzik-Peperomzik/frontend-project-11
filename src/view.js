@@ -1,15 +1,11 @@
-import onChange from 'on-change';
-
-const renderRssFormError = (state, elements, i18n) => {
-  const { errors } = state.rssForm;
+const renderRssFormError = (error, elements, i18n) => {
   const { feedback } = elements;
-  feedback.innerHTML = i18n.t(errors.message);
+  feedback.innerHTML = i18n.t(error.message);
   feedback.classList.add('text-danger');
   feedback.classList.remove('text-success');
 };
 
-const renderRssForm = (state, elements) => {
-  const { status } = state.rssForm;
+const renderRssForm = (status, elements) => {
   const { form, input, feedback } = elements;
   switch (status) {
     case 'invalid':
@@ -30,23 +26,7 @@ const renderRssForm = (state, elements) => {
   }
 };
 
-const render = (state, path, elements, i18n) => {
-  switch (path) {
-    case 'rssForm.status':
-      renderRssForm(state, elements);
-      break;
-    case 'channels':
-      break;
-    case 'rssForm.errors':
-      renderRssFormError(state, elements, i18n);
-      break;
-    default:
-      throw new Error(`Unknown state path: ${path}`);
-  }
+export {
+  renderRssForm,
+  renderRssFormError,
 };
-
-const view = (state, elements, i18n) => onChange(state, (path) => {
-  render(state, path, elements, i18n);
-});
-
-export default view;
