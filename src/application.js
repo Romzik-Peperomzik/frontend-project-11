@@ -74,6 +74,8 @@ const initApp = () => {
         form: document.querySelector('form'),
         input: document.getElementById('url-input'),
         feedback: document.querySelector('.feedback'),
+        posts: document.querySelector('.posts'),
+        feeds: document.querySelector('.feeds'),
       };
       // const state = view(initialState, elements, i18n);
 
