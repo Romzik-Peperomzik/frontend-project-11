@@ -14,14 +14,16 @@ const createCardAndTitle = (titleTranslation, i18n) => {
   cardTitle.classList.add('card-title', 'h4');
   cardTitle.innerHTML = i18n.t(titleTranslation);
 
-  const emptyList = document.createElement('ul');
-  emptyList.classList.add('list-group', 'border-0', 'rounded-0');
+  const elList = document.createElement('ul');
+  elList.classList.add('list-group', 'border-0', 'rounded-0');
   cardBody.append(cardTitle);
   card.append(cardBody);
-  return { card, emptyList };
+  return { card, elList };
 };
 
-const createPostsList = (postsData, postsList, i18n) => {
+const renderPostsCard = (postsData, elements, i18n) => {
+  const { postsContainer } = elements;
+  const { card, elList } = createCardAndTitle('postsTitle', i18n);
   postsData.forEach((postData) => {
     const { title, link, id } = postData;
     const li = document.createElement('li');
@@ -40,22 +42,17 @@ const createPostsList = (postsData, postsList, i18n) => {
     button.innerHTML = i18n.t('btnWatchMore');
     button.setAttribute('type', 'button');
     li.append(a, button);
-    postsList.append(li);
+    elList.append(li);
   });
-  return postsList;
-};
-
-const renderPostsCard = (postsData, elements, i18n) => {
-  const { postsContainer } = elements;
-  const { card, emptyList } = createCardAndTitle('postsTitle', i18n);
-  const postsList = createPostsList(postsData, emptyList, i18n);
-  card.append(postsList);
+  card.append(elList);
   postsContainer.replaceChildren(card);
 };
 
-const createFeedsList = (feedsData, feedsList) => {
-  feedsData.forEach((postData) => {
-    const { title, description } = postData;
+const renderFeedsCard = (feedsData, elements, i18n) => {
+  const { feedsContainer } = elements;
+  const { card, elList } = createCardAndTitle('feedsTitle', i18n);
+  feedsData.forEach((feedData) => {
+    const { title, description } = feedData;
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'border-0', 'border-end-0');
     const h3 = document.createElement('h3');
@@ -65,16 +62,9 @@ const createFeedsList = (feedsData, feedsList) => {
     p.classList.add('m-0', 'small', 'text-black-50');
     p.innerHTML = description;
     li.append(h3, p);
-    feedsList.append(li);
+    elList.append(li);
   });
-  return feedsList;
-};
-
-const renderFeedsCard = (feedsData, elements, i18n) => {
-  const { feedsContainer } = elements;
-  const { card, emptyList } = createCardAndTitle('feedsTitle', i18n);
-  const feedsList = createFeedsList(feedsData, emptyList, i18n);
-  card.append(feedsList);
+  card.append(elList);
   feedsContainer.replaceChildren(card);
 };
 
