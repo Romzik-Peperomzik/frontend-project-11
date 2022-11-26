@@ -37,7 +37,7 @@ const getFeed = (initialState, state, url) => {
     });
 };
 
-const runApp = (initialState, elements, i18n) => {
+const createWatchedState = (initialState, elements, i18n) => {
   const state = onChange(initialState, (path, value) => {
     switch (path) {
       case 'channels':
@@ -59,7 +59,11 @@ const runApp = (initialState, elements, i18n) => {
         throw new Error(`Unknown state path: ${path}`);
     }
   });
+  return state;
+};
 
+const runApp = (initialState, elements, i18n) => {
+  const state = createWatchedState(initialState, elements, i18n);
   const { form, input } = elements;
   form.addEventListener('submit', (e) => {
     e.preventDefault();
