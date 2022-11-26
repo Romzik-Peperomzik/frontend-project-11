@@ -30,9 +30,14 @@ const getFeed = (initialState, state, url) => {
       const isNewFeed = state.feeds.every(({ title }) => title !== parsedFeed.title);
       if (isNewFeed) state.feeds.push(parsedFeed);
 
-      state.posts = parsedPosts;
+      const newPosts = parsedPosts.filter((parsedPost) => state.posts.every(
+        (post) => parsedPost.title !== post.title,
+      ));
+      if (newPosts.length > 0) state.posts = [...newPosts, ...initialState.posts];
     })
-    .catch((err) => {
+    .then(() => setTimeout(() => { getFeed(initialState, state, url); }, 5000))
+    .catch((err, timerID) => {
+      clearTimeout(timerID);
       state.rssForm.errors = err;
     });
 };
