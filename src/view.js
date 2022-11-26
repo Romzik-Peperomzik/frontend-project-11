@@ -3,7 +3,7 @@ const makeLinkVisited = (event) => {
   event.target.classList.add('fw-normal', 'link-secondary');
 };
 
-const createCardContainers = (translation, i18n) => {
+const createCardAndTitle = (titleTranslation, i18n) => {
   const card = document.createElement('div');
   card.classList.add('card', 'border-0');
 
@@ -12,11 +12,13 @@ const createCardContainers = (translation, i18n) => {
 
   const cardTitle = document.createElement('h2');
   cardTitle.classList.add('card-title', 'h4');
-  cardTitle.innerHTML = i18n.t(translation);
+  cardTitle.innerHTML = i18n.t(titleTranslation);
 
   const emptyList = document.createElement('ul');
   emptyList.classList.add('list-group', 'border-0', 'rounded-0');
-  return { card, cardBody, cardTitle, emptyList };
+  cardBody.append(cardTitle);
+  card.append(cardBody);
+  return { card, emptyList };
 };
 
 const createPostsList = (postsData, postsList, i18n) => {
@@ -45,10 +47,9 @@ const createPostsList = (postsData, postsList, i18n) => {
 
 const renderPostsCard = (postsData, elements, i18n) => {
   const { postsContainer } = elements;
-  const { card, cardBody, cardTitle, emptyList } = createCardContainers('postsTitle', i18n);
+  const { card, emptyList } = createCardAndTitle('postsTitle', i18n);
   const postsList = createPostsList(postsData, emptyList, i18n);
-  cardBody.append(cardTitle);
-  card.append(cardBody, postsList);
+  card.append(postsList);
   postsContainer.replaceChildren(card);
 };
 
@@ -71,10 +72,9 @@ const createFeedsList = (feedsData, feedsList) => {
 
 const renderFeedsCard = (feedsData, elements, i18n) => {
   const { feedsContainer } = elements;
-  const { card, cardBody, cardTitle, emptyList } = createCardContainers('feedsTitle', i18n);
+  const { card, emptyList } = createCardAndTitle('feedsTitle', i18n);
   const feedsList = createFeedsList(feedsData, emptyList, i18n);
-  cardBody.append(cardTitle);
-  card.append(cardBody, feedsList);
+  card.append(feedsList);
   feedsContainer.replaceChildren(card);
 };
 
