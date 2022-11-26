@@ -3,6 +3,21 @@ const makeLinkVisited = (event) => {
   event.target.classList.add('fw-normal', 'link-secondary');
 };
 
+const createCardContainers = () => {
+  const card = document.createElement('div');
+  card.classList.add('card', 'border-0');
+
+  const cardBody = document.createElement('div');
+  cardBody.classList.add('card-body');
+
+  const cardTitle = document.createElement('h2');
+  cardTitle.classList.add('card-title', 'h4');
+
+  const emptyList = document.createElement('ul');
+  emptyList.classList.add('list-group', 'border-0', 'rounded-0');
+  return { card, cardBody, cardTitle, emptyList };
+};
+
 const createPostsList = (postsData, postsList, i18n) => {
   postsData.forEach((postData) => {
     const { title, link, id } = postData;
@@ -29,22 +44,12 @@ const createPostsList = (postsData, postsList, i18n) => {
 
 const renderPostsCard = (postsData, elements, i18n) => {
   const { postsContainer } = elements;
-  const postsCard = document.createElement('div');
-  postsCard.classList.add('card', 'border-0');
-
-  const postsCardBody = document.createElement('div');
-  postsCardBody.classList.add('card-body');
-
-  const postsCardTitle = document.createElement('h2');
-  postsCardTitle.classList.add('card-title', 'h4');
-  postsCardTitle.innerHTML = i18n.t('postsTitle');
-
-  const emptyList = document.createElement('ul');
-  emptyList.classList.add('list-group', 'border-0', 'rounded-0');
+  const { card, cardBody, cardTitle, emptyList } = createCardContainers();
+  cardTitle.innerHTML = i18n.t('postsTitle');
   const postsList = createPostsList(postsData, emptyList, i18n);
-  postsCardBody.append(postsCardTitle);
-  postsCard.append(postsCardBody, postsList);
-  postsContainer.replaceChildren(postsCard);
+  cardBody.append(cardTitle);
+  card.append(cardBody, postsList);
+  postsContainer.replaceChildren(card);
 };
 
 const createFeedsList = (feedsData, feedsList) => {
@@ -66,23 +71,12 @@ const createFeedsList = (feedsData, feedsList) => {
 
 const renderFeedsCard = (feedsData, elements, i18n) => {
   const { feedsContainer } = elements;
-  const feedsCard = document.createElement('div');
-  feedsCard.classList.add('card', 'border-0');
-
-  const feedsCardBody = document.createElement('div');
-  feedsCardBody.classList.add('card-body');
-
-  const feedsCardTitle = document.createElement('h2');
-  feedsCardTitle.classList.add('card-title', 'h4');
-  feedsCardTitle.innerHTML = i18n.t('feedsTitle');
-
-  const emptyList = document.createElement('ul');
-  emptyList.classList.add('list-group', 'border-0', 'rounded-0');
+  const { card, cardBody, cardTitle, emptyList } = createCardContainers();
+  cardTitle.innerHTML = i18n.t('feedsTitle');
   const feedsList = createFeedsList(feedsData, emptyList, i18n);
-
-  feedsCardBody.append(feedsCardTitle);
-  feedsCard.append(feedsCardBody, feedsList);
-  feedsContainer.replaceChildren(feedsCard);
+  cardBody.append(cardTitle);
+  card.append(cardBody, feedsList);
+  feedsContainer.replaceChildren(card);
 };
 
 const renderClearForm = (elements) => {
