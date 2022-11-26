@@ -1,24 +1,56 @@
+import axios from 'axios';
 import i18next from 'i18next';
 import onChange from 'on-change';
 import { string, setLocale } from 'yup';
+import rawXMLparser from './parser.js';
 import {
-  renderRssForm,
+  renderRssFormFeedback,
   renderRssFormError,
+  renderPostsCard,
+  renderFeedsCard,
 } from './view.js';
 import resources from './locales/index.js';
 
-const validateUrl = (state, url) => {
+const validateURL = (state, url) => {
   const schema = string().url().notOneOf(state.channels);
   return schema.validate(url);
 };
 
+const getFeed = (initialState, state, url) => {
+  axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`)
+    .then((response) => {
+      if (response.data.status.http_code === 200) {
+        state.rssForm.status = 'downloaded';
+        return response.data.contents;
+      }
+      throw new Error('networkResponseError');
+    })
+    .then((rawXML) => {
+      const { parsedFeed, parsedPosts } = rawXMLparser(rawXML);
+      const isNewFeed = state.feeds.every(({ title }) => title !== parsedFeed.title);
+      if (isNewFeed) state.feeds.push(parsedFeed);
+
+      state.posts = parsedPosts;
+    })
+    .catch((err) => {
+      state.rssForm.errors = err;
+    });
+};
+
 const runApp = (initialState, elements, i18n) => {
-  const state = onChange(initialState, (path, value) => { // previousValue
+  const state = onChange(initialState, (path, value) => {
     switch (path) {
-      case 'rssForm.status':
-        renderRssForm(value, elements);
-        break;
       case 'channels':
+        getFeed(initialState, state, value.at(-1));
+        break;
+      case 'posts':
+        renderPostsCard(value, elements, i18n);
+        break;
+      case 'feeds':
+        renderFeedsCard(value, elements, i18n);
+        break;
+      case 'rssForm.status':
+        renderRssFormFeedback(value, elements, i18n);
         break;
       case 'rssForm.errors':
         renderRssFormError(value, elements, i18n);
@@ -28,21 +60,22 @@ const runApp = (initialState, elements, i18n) => {
     }
   });
 
-  const { form } = elements;
+  const { form, input } = elements;
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const url = formData.get('url');
-
-    validateUrl(state, url)
+    validateURL(state, url)
       .then(() => {
-        state.rssForm.status = 'valid';
+        state.rssForm.status = 'processing';
         state.channels.push(url);
       })
       .catch((err) => {
         state.rssForm.status = 'invalid';
         state.rssForm.errors = err;
       });
+    form.reset();
+    input.focus();
   });
 };
 
@@ -65,6 +98,8 @@ const initApp = () => {
       });
       const initialState = {
         channels: [],
+        feeds: [],
+        posts: [],
         rssForm: {
           status: 'invalid',
           errors: [],
@@ -73,11 +108,11 @@ const initApp = () => {
       const elements = {
         form: document.querySelector('form'),
         input: document.getElementById('url-input'),
+        formSubmitButton: document.querySelector('.btn-primary'),
         feedback: document.querySelector('.feedback'),
-        posts: document.querySelector('.posts'),
-        feeds: document.querySelector('.feeds'),
+        postsContainer: document.querySelector('.posts'),
+        feedsContainer: document.querySelector('.feeds'),
       };
-      // const state = view(initialState, elements, i18n);
 
       runApp(initialState, elements, i18n);
     })
