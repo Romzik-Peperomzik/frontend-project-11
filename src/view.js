@@ -1,6 +1,7 @@
-const makeLinkVisited = (event) => {
-  event.target.classList.remove('fw-bold');
-  event.target.classList.add('fw-normal', 'link-secondary');
+const renderVisitedLink = (link) => {
+  const a = document.querySelector(`a[href='${link}']`);
+  a.classList.remove('fw-bold');
+  a.classList.add('fw-normal', 'link-secondary');
 };
 
 const createCardAndTitle = (titleTranslation, i18n) => {
@@ -21,7 +22,7 @@ const createCardAndTitle = (titleTranslation, i18n) => {
   return { card, elList };
 };
 
-const renderPostsCard = (postsData, elements, i18n) => {
+const renderPostsCard = (postsData, state, elements, i18n) => {
   const { postsContainer } = elements;
   const { card, elList } = createCardAndTitle('postsTitle', i18n);
   postsData.forEach((postData) => {
@@ -29,11 +30,11 @@ const renderPostsCard = (postsData, elements, i18n) => {
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
     const a = document.createElement('a');
-    a.classList.add('fw-bold');
-    a.addEventListener('click', (e) => makeLinkVisited(e));
+    a.addEventListener('click', () => state.ui.visitedLinks.push(link));
+    a.classList.add(...state.ui.visitedLinks.includes(link) ? ['fw-normal', 'link-secondary'] : ['fw-bold']);
+    Object.assign(a, { href: link, target: '_blank', rel: 'noopener noreferrer' });
     a.dataset.id = id;
     a.innerHTML = title;
-    Object.assign(a, { href: link, target: '_blank', rel: 'noopener noreferrer' });
     const button = document.createElement('button');
     button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
     button.dataset.id = id;
@@ -111,4 +112,5 @@ export {
   renderRssFormError,
   renderPostsCard,
   renderFeedsCard,
+  renderVisitedLink,
 };

@@ -8,6 +8,7 @@ import {
   renderRssFormError,
   renderPostsCard,
   renderFeedsCard,
+  renderVisitedLink,
 } from './view.js';
 import resources from './locales/index.js';
 
@@ -49,7 +50,7 @@ const createWatchedState = (initialState, elements, i18n) => {
         getFeed(initialState, state, value.at(-1));
         break;
       case 'posts':
-        renderPostsCard(value, elements, i18n);
+        renderPostsCard(value, state, elements, i18n);
         break;
       case 'feeds':
         renderFeedsCard(value, elements, i18n);
@@ -59,6 +60,9 @@ const createWatchedState = (initialState, elements, i18n) => {
         break;
       case 'rssForm.errors':
         renderRssFormError(value, elements, i18n);
+        break;
+      case 'ui.visitedLinks':
+        renderVisitedLink(value.at(-1));
         break;
       default:
         throw new Error(`Unknown state path: ${path}`);
@@ -109,6 +113,9 @@ const initApp = () => {
         channels: [],
         feeds: [],
         posts: [],
+        ui: {
+          visitedLinks: [],
+        },
         rssForm: {
           status: 'invalid',
           errors: [],
