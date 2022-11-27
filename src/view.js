@@ -4,7 +4,7 @@ const renderVisitedLink = (link) => {
   a.classList.add('fw-normal', 'link-secondary');
 };
 
-const createCardAndTitle = (titleTranslation, i18n) => {
+const createInnerContainerElements = (titleTranslation, i18n) => {
   const card = document.createElement('div');
   card.classList.add('card', 'border-0');
 
@@ -15,16 +15,16 @@ const createCardAndTitle = (titleTranslation, i18n) => {
   cardTitle.classList.add('card-title', 'h4');
   cardTitle.innerHTML = i18n.t(titleTranslation);
 
-  const elList = document.createElement('ul');
-  elList.classList.add('list-group', 'border-0', 'rounded-0');
+  const listGroup = document.createElement('ul');
+  listGroup.classList.add('list-group', 'border-0', 'rounded-0');
   cardBody.append(cardTitle);
   card.append(cardBody);
-  return { card, elList };
+  return { card, listGroup };
 };
 
 const renderPostsCard = (postsData, state, elements, i18n) => {
   const { postsContainer } = elements;
-  const { card, elList } = createCardAndTitle('postsTitle', i18n);
+  const { card, listGroup } = createInnerContainerElements('postsTitle', i18n);
   postsData.forEach((postData) => {
     const { title, link, id } = postData;
     const li = document.createElement('li');
@@ -43,15 +43,15 @@ const renderPostsCard = (postsData, state, elements, i18n) => {
     button.innerHTML = i18n.t('btnWatchMore');
     button.setAttribute('type', 'button');
     li.append(a, button);
-    elList.append(li);
+    listGroup.append(li);
   });
-  card.append(elList);
+  card.append(listGroup);
   postsContainer.replaceChildren(card);
 };
 
 const renderFeedsCard = (feedsData, elements, i18n) => {
   const { feedsContainer } = elements;
-  const { card, elList } = createCardAndTitle('feedsTitle', i18n);
+  const { card, listGroup } = createInnerContainerElements('feedsTitle', i18n);
   feedsData.forEach((feedData) => {
     const { title, description } = feedData;
     const li = document.createElement('li');
@@ -63,9 +63,9 @@ const renderFeedsCard = (feedsData, elements, i18n) => {
     p.classList.add('m-0', 'small', 'text-black-50');
     p.innerHTML = description;
     li.append(h3, p);
-    elList.append(li);
+    listGroup.append(li);
   });
-  card.append(elList);
+  card.append(listGroup);
   feedsContainer.replaceChildren(card);
 };
 
