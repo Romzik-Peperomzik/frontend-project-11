@@ -128,6 +128,10 @@ const initApp = () => {
         feedback: document.querySelector('.feedback'),
         postsContainer: document.querySelector('.posts'),
         feedsContainer: document.querySelector('.feeds'),
+        modalTitle: document.querySelector('.modal-title'),
+        modalBody: document.querySelector('.modal-body'),
+        modalMoreButton: document.querySelector('.full-article'),
+        modalCloseButton: document.querySelector('.modal-footer > .btn-secondary'),
       };
 
       runApp(initialState, elements, i18n);

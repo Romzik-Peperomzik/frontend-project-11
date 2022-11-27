@@ -1,5 +1,5 @@
 const renderVisitedLink = (link) => {
-  const a = document.querySelector(`a[href='${link}']`);
+  const a = document.querySelector(`li > a[href='${link}']`);
   a.classList.remove('fw-bold');
   a.classList.add('fw-normal', 'link-secondary');
 };
@@ -22,6 +22,28 @@ const createInnerContainerElements = (titleTranslation, i18n) => {
   return { card, listGroup };
 };
 
+const createModalButton = (id, state, elements, i18n) => {
+  const button = document.createElement('button');
+  button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+  button.dataset.id = id;
+  button.dataset.bsToggle = 'modal';
+  button.dataset.bsTarget = '#modal';
+  button.innerHTML = i18n.t('btnWatchMore');
+  button.setAttribute('type', 'button');
+  button.addEventListener('click', (event) => {
+    const targetID = event.target.dataset.id;
+    const post = state.posts.filter((postObj) => postObj.id === targetID);
+    const [{ title, description, link }] = post;
+    const { modalTitle, modalBody, modalMoreButton, modalCloseButton } = elements;
+    modalTitle.textContent = title;
+    modalBody.textContent = description;
+    modalMoreButton.setAttribute('href', link);
+    modalMoreButton.textContent = i18n.t('modalReadMore');
+    modalCloseButton.textContent = i18n.t('Закрыть');
+  });
+  return button;
+};
+
 const renderPostsCard = (postsData, state, elements, i18n) => {
   const { postsContainer } = elements;
   const { card, listGroup } = createInnerContainerElements('postsTitle', i18n);
@@ -35,14 +57,8 @@ const renderPostsCard = (postsData, state, elements, i18n) => {
     Object.assign(a, { href: link, target: '_blank', rel: 'noopener noreferrer' });
     a.dataset.id = id;
     a.innerHTML = title;
-    const button = document.createElement('button');
-    button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-    button.dataset.id = id;
-    button.dataset.bsToggle = 'modal';
-    button.dataset.bsTarget = '#modal';
-    button.innerHTML = i18n.t('btnWatchMore');
-    button.setAttribute('type', 'button');
-    li.append(a, button);
+    const modalButton = createModalButton(id, state, elements, i18n);
+    li.append(a, modalButton);
     listGroup.append(li);
   });
   card.append(listGroup);

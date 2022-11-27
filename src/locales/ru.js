@@ -8,5 +8,7 @@ export default {
     postsTitle: 'Посты',
     feedsTitle: 'Фиды',
     btnWatchMore: 'Просмотр',
+    modalReadMore: 'Читать полностью',
+    modalClose: 'Закрыть',
   },
 };
