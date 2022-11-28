@@ -28,7 +28,7 @@ const createModalButton = (id, state, elements, i18n) => {
   button.dataset.id = id;
   button.dataset.bsToggle = 'modal';
   button.dataset.bsTarget = '#modal';
-  button.innerHTML = i18n.t('btnWatchMore');
+  button.innerHTML = i18n.t('ui.card.watchMore');
   button.setAttribute('type', 'button');
   button.addEventListener('click', (event) => {
     const targetID = event.target.dataset.id;
@@ -38,15 +38,15 @@ const createModalButton = (id, state, elements, i18n) => {
     modalTitle.textContent = title;
     modalBody.textContent = description;
     modalMoreButton.setAttribute('href', link);
-    modalMoreButton.textContent = i18n.t('modalReadMore');
-    modalCloseButton.textContent = i18n.t('Закрыть');
+    modalMoreButton.textContent = i18n.t('ui.modal.readMore');
+    modalCloseButton.textContent = i18n.t('ui.modal.close');
   });
   return button;
 };
 
 const renderPostsCard = (postsData, state, elements, i18n) => {
   const { postsContainer } = elements;
-  const { card, listGroup } = createInnerContainerElements('postsTitle', i18n);
+  const { card, listGroup } = createInnerContainerElements('ui.card.postsTitle', i18n);
   postsData.forEach((postData) => {
     const { title, link, id } = postData;
     const li = document.createElement('li');
@@ -67,7 +67,7 @@ const renderPostsCard = (postsData, state, elements, i18n) => {
 
 const renderFeedsCard = (feedsData, elements, i18n) => {
   const { feedsContainer } = elements;
-  const { card, listGroup } = createInnerContainerElements('feedsTitle', i18n);
+  const { card, listGroup } = createInnerContainerElements('ui.card.feedsTitle', i18n);
   feedsData.forEach((feedData) => {
     const { title, description } = feedData;
     const li = document.createElement('li');
@@ -116,7 +116,7 @@ const renderRssFormFeedback = (status, elements, i18n) => {
       break;
     case 'downloaded':
       feedback.classList.add('text-success');
-      feedback.innerHTML = i18n.t('rssSuccessedLoad');
+      feedback.innerHTML = i18n.t('ui.rssForm.network.successedLoad');
       break;
     default:
       throw new Error(`Unknown form render status: ${status}`);

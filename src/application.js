@@ -24,7 +24,7 @@ const getFeed = (initialState, state, url) => {
         state.rssForm.status = 'downloaded';
         return response.data.contents;
       }
-      throw new Error('networkResponseError');
+      throw new Error('ui.rssForm.network.responseError');
     })
     .then((rawXML) => {
       const { parsedFeed, parsedPosts } = rawXMLparser(rawXML);
@@ -103,10 +103,10 @@ const initApp = () => {
     .then(() => {
       setLocale({
         string: {
-          url: 'invalidUrlError',
+          url: 'ui.rssForm.yup.invalidUrlError',
         },
         mixed: {
-          notOneOf: 'existUrlError',
+          notOneOf: 'ui.rssForm.yup.existUrlError',
         },
       });
       const initialState = {
@@ -124,7 +124,7 @@ const initApp = () => {
       const elements = {
         form: document.querySelector('form'),
         input: document.getElementById('url-input'),
-        formSubmitButton: document.querySelector('.btn-primary'),
+        formSubmitButton: document.querySelector('form .btn-primary'),
         feedback: document.querySelector('.feedback'),
         postsContainer: document.querySelector('.posts'),
         feedsContainer: document.querySelector('.feeds'),

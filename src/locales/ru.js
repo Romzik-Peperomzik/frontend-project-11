@@ -1,14 +1,29 @@
 export default {
   translation: {
-    invalidUrlError: 'Ссылка должна быть валидным URL',
-    existUrlError: 'RSS уже существует',
-    rssSuccessedLoad: 'RSS успешно загружен',
-    networkResponseError: 'Не удаётся обработать ответ сервера',
-    XMLdocumentParsingError: 'Ошибка парсинга документа, обновите страницу и попробуйте снова.',
-    postsTitle: 'Посты',
-    feedsTitle: 'Фиды',
-    btnWatchMore: 'Просмотр',
-    modalReadMore: 'Читать полностью',
-    modalClose: 'Закрыть',
+    ui: {
+      rssForm: {
+        yup: {
+          invalidUrlError: 'Ссылка должна быть валидным URL',
+          existUrlError: 'RSS уже существует',
+        },
+        parsing: {
+          XMLdocumentError: 'Ресурс не содержит валидный RSS',
+        },
+        network: {
+          responseError: 'Не удаётся обработать ответ сервера',
+          successedLoad: 'RSS успешно загружен',
+        },
+      },
+      card: {
+        postsTitle: 'Посты',
+        feedsTitle: 'Фиды',
+        watchMore: 'Просмотр',
+      },
+      modal: {
+        readMore: 'Читать полностью',
+        close: 'Закрыть',
+      },
+    },
+    'Network Error': 'Ошибка сети',
   },
 };
