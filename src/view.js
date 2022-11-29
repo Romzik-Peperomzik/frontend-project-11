@@ -40,6 +40,7 @@ const createModalButton = (id, state, elements, i18n) => {
     modalMoreButton.setAttribute('href', link);
     modalMoreButton.textContent = i18n.t('ui.modal.readMore');
     modalCloseButton.textContent = i18n.t('ui.modal.close');
+    renderVisitedLink(link);
   });
   return button;
 };
