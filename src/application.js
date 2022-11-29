@@ -40,7 +40,7 @@ const getFeed = (url, initialState, state) => {
       state.rssForm.status = 'invalid';
       state.rssForm.errors = err;
     })
-    .finally(() => setTimeout(() => { getFeed(url, initialState, state); }, 5000));
+    .finally(() => setTimeout(() => { getFeed(url, initialState, state); }, state.updatePeriod));
 };
 
 const createWatchedState = (initialState, elements, i18n) => {
@@ -110,6 +110,7 @@ const initApp = () => {
         },
       });
       const initialState = {
+        updatePeriod: 5000,
         channels: [],
         feeds: [],
         posts: [],
