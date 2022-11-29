@@ -117,7 +117,7 @@ const renderRssFormFeedback = (status, elements, i18n) => {
       break;
     case 'downloaded':
       feedback.classList.add('text-success');
-      feedback.innerHTML = i18n.t('ui.rssForm.network.successedLoad');
+      feedback.textContent = i18n.t('ui.rssForm.network.successedLoad');
       break;
     default:
       throw new Error(`Unknown form render status: ${status}`);
