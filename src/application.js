@@ -17,7 +17,7 @@ const validateURL = (state, url) => {
   return schema.validate(url);
 };
 
-const getFeed = (initialState, state, url) => {
+const getFeed = (url, initialState, state) => {
   axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`)
     .then((response) => {
       if (response.data.status.http_code === 200) {
@@ -36,18 +36,18 @@ const getFeed = (initialState, state, url) => {
       ));
       if (newPosts.length > 0) state.posts = [...newPosts, ...initialState.posts];
     })
-    .then(() => setTimeout(() => { getFeed(initialState, state, url); }, 5000))
-    .catch((err, timerID) => {
-      clearTimeout(timerID);
+    .catch((err) => {
+      state.rssForm.status = 'invalid';
       state.rssForm.errors = err;
-    });
+    })
+    .finally(() => setTimeout(() => { getFeed(url, initialState, state); }, 5000));
 };
 
 const createWatchedState = (initialState, elements, i18n) => {
   const state = onChange(initialState, (path, value) => {
     switch (path) {
       case 'channels':
-        getFeed(initialState, state, value.at(-1));
+        getFeed(value.at(-1), initialState, state);
         break;
       case 'posts':
         renderPostsCard(value, state, elements, i18n);
