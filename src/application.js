@@ -20,7 +20,7 @@ const validateURL = (state, url) => {
 const getFeed = (url, initialState, state) => {
   axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`)
     .then((response) => {
-      if (response.data.status.http_code === 200) {
+      if (response.status === 200) {
         state.rssForm.status = 'downloaded';
         return response.data.contents;
       }

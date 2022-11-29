@@ -4,7 +4,7 @@ export default (rawXML) => {
   const parser = new DOMParser();
   const XMLDocument = parser.parseFromString(rawXML, 'application/xml');
   const errorNode = XMLDocument.querySelector('parsererror');
-  if (errorNode) throw new Error('XMLdocumentParsingError');
+  if (errorNode) throw new Error('ui.rssForm.parsing.XMLdocumentError');
 
   const parsedFeed = {
     title: XMLDocument.querySelector('title').textContent,
