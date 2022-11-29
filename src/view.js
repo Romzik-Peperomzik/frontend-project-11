@@ -34,7 +34,8 @@ const createModalButton = (id, state, elements, i18n) => {
     const targetID = event.target.dataset.id;
     const post = state.posts.filter((postObj) => postObj.id === targetID);
     const [{ title, description, link }] = post;
-    const { modalTitle, modalBody, modalMoreButton, modalCloseButton } = elements;
+    const { modalTitle, modalBody, modalMoreButton } = elements;
+    const { modalCloseButton } = elements;
     modalTitle.textContent = title;
     modalBody.textContent = description;
     modalMoreButton.setAttribute('href', link);
