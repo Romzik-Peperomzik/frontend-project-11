@@ -5,7 +5,7 @@ dev:
 	npx webpack
 
 prod:
-	npx webpack --mode=development
+	npx webpack --mode=production
 
 install:
 	npm ci
