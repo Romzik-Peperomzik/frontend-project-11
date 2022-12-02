@@ -1,20 +1,13 @@
 import axios from 'axios';
 import i18next from 'i18next';
-import onChange from 'on-change';
 import { isPlainObject, uniqueId } from 'lodash';
 import { string, setLocale } from 'yup';
 import rawXMLparser from './parser.js';
-import {
-  renderRssFormFeedback,
-  renderRssFormError,
-  renderPostsCard,
-  renderFeedsCard,
-  renderVisitedLink,
-} from './view.js';
+import viewWatchedState from './view.js';
 import resources from './locales/index.js';
 
-const validateURL = (state, url) => {
-  const schema = string().url().notOneOf(state.channels);
+const validateURL = (channels, url) => {
+  const schema = string().url().notOneOf(channels);
   return schema.validate(url);
 };
 
@@ -49,45 +42,19 @@ const getFeed = (url, initialState, state) => {
     .finally(() => setTimeout(() => { getFeed(url, initialState, state); }, state.updatePeriod));
 };
 
-const createWatchedState = (initialState, elements, i18n) => {
-  const state = onChange(initialState, (path, value) => {
-    switch (path) {
-      case 'channels':
-        getFeed(value.at(-1), initialState, state);
-        break;
-      case 'posts':
-        renderPostsCard(value, state, elements, i18n);
-        break;
-      case 'feeds':
-        renderFeedsCard(value, elements, i18n);
-        break;
-      case 'rssForm.status':
-        renderRssFormFeedback(value, elements, i18n);
-        break;
-      case 'rssForm.errors':
-        renderRssFormError(value, elements, i18n);
-        break;
-      case 'ui.visitedLinks':
-        renderVisitedLink(value.at(-1));
-        break;
-      default:
-        throw new Error(`Unknown state path: ${path}`);
-    }
-  });
-  return state;
-};
-
 const runApp = (initialState, elements, i18n) => {
-  const state = createWatchedState(initialState, elements, i18n);
+  const state = viewWatchedState(initialState, elements, i18n);
+  const channels = [];
   const { form, input } = elements;
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const url = formData.get('url');
-    validateURL(state, url)
+    validateURL(channels, url)
       .then(() => {
         state.rssForm.status = 'processing';
-        state.channels.push(url);
+        getFeed(url, initialState, state);
+        channels.push(url);
       })
       .catch((err) => {
         state.rssForm.status = 'invalid';

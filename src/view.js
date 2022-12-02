@@ -1,3 +1,5 @@
+import onChange from 'on-change';
+
 const renderVisitedLink = (link) => {
   const a = document.querySelector(`li > a[href='${link}']`);
   a.classList.remove('fw-bold');
@@ -125,10 +127,27 @@ const renderRssFormFeedback = (status, elements, i18n) => {
   }
 };
 
-export {
-  renderRssFormFeedback,
-  renderRssFormError,
-  renderPostsCard,
-  renderFeedsCard,
-  renderVisitedLink,
+export default (initialState, elements, i18n) => {
+  const state = onChange(initialState, (path, value) => {
+    switch (path) {
+      case 'posts':
+        renderPostsCard(value, state, elements, i18n);
+        break;
+      case 'feeds':
+        renderFeedsCard(value, elements, i18n);
+        break;
+      case 'rssForm.status':
+        renderRssFormFeedback(value, elements, i18n);
+        break;
+      case 'rssForm.errors':
+        renderRssFormError(value, elements, i18n);
+        break;
+      case 'ui.visitedLinks':
+        renderVisitedLink(value.at(-1));
+        break;
+      default:
+        throw new Error(`Unknown state path: ${path}`);
+    }
+  });
+  return state;
 };
