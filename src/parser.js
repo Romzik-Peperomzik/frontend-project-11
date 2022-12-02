@@ -1,5 +1,3 @@
-import { uniqueId } from 'lodash';
-
 export default (rawXML) => {
   const parser = new DOMParser();
   const XMLDocument = parser.parseFromString(rawXML, 'application/xml');
@@ -10,7 +8,6 @@ export default (rawXML) => {
     title: XMLDocument.querySelector('title').textContent,
     description: XMLDocument.querySelector('description').textContent,
     link: XMLDocument.querySelector('link').textContent,
-    id: uniqueId(),
   };
 
   const posts = XMLDocument.querySelectorAll('item');
@@ -19,7 +16,6 @@ export default (rawXML) => {
     description: post.querySelector('description').textContent,
     link: post.querySelector('link').textContent,
     feedID: parsedFeed.id,
-    id: uniqueId(),
   }));
-  return { parsedFeed, parsedPosts };
+  return [parsedFeed, parsedPosts];
 };

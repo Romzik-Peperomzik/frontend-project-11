@@ -1,6 +1,7 @@
 import axios from 'axios';
 import i18next from 'i18next';
 import onChange from 'on-change';
+import { isPlainObject, uniqueId } from 'lodash';
 import { string, setLocale } from 'yup';
 import rawXMLparser from './parser.js';
 import {
@@ -17,6 +18,11 @@ const validateURL = (state, url) => {
   return schema.validate(url);
 };
 
+const addIDForParsedData = (data) => {
+  if (isPlainObject(data)) return { ...data, id: uniqueId() };
+  return data.map((dataItem) => ({ ...dataItem, id: uniqueId() }));
+};
+
 const getFeed = (url, initialState, state) => {
   axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`)
     .then((response) => {
@@ -27,10 +33,10 @@ const getFeed = (url, initialState, state) => {
       throw new Error('ui.rssForm.network.responseError');
     })
     .then((rawXML) => {
-      const { parsedFeed, parsedPosts } = rawXMLparser(rawXML);
+      const [parsedFeed, parsedPosts] = rawXMLparser(rawXML)
+        .map((parsedDataItem) => addIDForParsedData(parsedDataItem));
       const isNewFeed = state.feeds.every(({ title }) => title !== parsedFeed.title);
       if (isNewFeed) state.feeds.push(parsedFeed);
-
       const newPosts = parsedPosts.filter((parsedPost) => state.posts.every(
         (post) => parsedPost.title !== post.title,
       ));
