@@ -6,6 +6,19 @@ const renderVisitedLink = (link) => {
   a.classList.add('fw-normal', 'link-secondary');
 };
 
+const renderModal = (modalButtonID, state, elements, i18n) => {
+  const post = state.posts.filter((postObj) => postObj.id === modalButtonID);
+  const [{ title, description, link }] = post;
+  const { modalTitle, modalBody, modalMoreButton } = elements;
+  const { modalCloseButton } = elements;
+  modalTitle.textContent = title;
+  modalBody.textContent = description;
+  modalMoreButton.setAttribute('href', link);
+  modalMoreButton.textContent = i18n.t('ui.modal.readMore');
+  modalCloseButton.textContent = i18n.t('ui.modal.close');
+  renderVisitedLink(link);
+};
+
 const createInnerContainerElements = (titleTranslation, i18n) => {
   const card = document.createElement('div');
   card.classList.add('card', 'border-0');
@@ -32,19 +45,6 @@ const createModalButton = (id, state, elements, i18n) => {
   button.dataset.bsTarget = '#modal';
   button.innerHTML = i18n.t('ui.card.watchMore');
   button.setAttribute('type', 'button');
-  button.addEventListener('click', (event) => {
-    const targetID = event.target.dataset.id;
-    const post = state.posts.filter((postObj) => postObj.id === targetID);
-    const [{ title, description, link }] = post;
-    const { modalTitle, modalBody, modalMoreButton } = elements;
-    const { modalCloseButton } = elements;
-    modalTitle.textContent = title;
-    modalBody.textContent = description;
-    modalMoreButton.setAttribute('href', link);
-    modalMoreButton.textContent = i18n.t('ui.modal.readMore');
-    modalCloseButton.textContent = i18n.t('ui.modal.close');
-    renderVisitedLink(link);
-  });
   return button;
 };
 
@@ -56,7 +56,6 @@ const renderPostsCard = (postsData, state, elements, i18n) => {
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
     const a = document.createElement('a');
-    a.addEventListener('click', () => state.ui.visitedLinks.push(link));
     a.classList.add(...state.ui.visitedLinks.includes(link) ? ['fw-normal', 'link-secondary'] : ['fw-bold']);
     Object.assign(a, { href: link, target: '_blank', rel: 'noopener noreferrer' });
     a.dataset.id = id;
@@ -144,6 +143,9 @@ export default (initialState, elements, i18n) => {
         break;
       case 'ui.visitedLinks':
         renderVisitedLink(value.at(-1));
+        break;
+      case 'ui.modalButtonID':
+        renderModal(value, state, elements, i18n);
         break;
       default:
         throw new Error(`Unknown state path: ${path}`);

@@ -11,6 +11,16 @@ const validateURL = (channels, url) => {
   return schema.validate(url);
 };
 
+const processPostsLink = (state, linkElem) => {
+  const link = linkElem.getAttribute('href');
+  state.ui.visitedLinks.push(link);
+};
+
+const processPostsModalButton = (state, modalButtonElem) => {
+  const { id } = modalButtonElem.dataset;
+  state.ui.modalButtonID = id;
+};
+
 const addIDForParsedData = (data) => {
   if (isPlainObject(data)) return { ...data, id: uniqueId() };
   return data.map((dataItem) => ({ ...dataItem, id: uniqueId() }));
@@ -42,30 +52,7 @@ const getFeed = (url, initialState, state) => {
     .finally(() => setTimeout(() => { getFeed(url, initialState, state); }, state.updatePeriod));
 };
 
-const runApp = (initialState, elements, i18n) => {
-  const state = viewWatchedState(initialState, elements, i18n);
-  const channels = [];
-  const { form, input } = elements;
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const url = formData.get('url');
-    validateURL(channels, url)
-      .then(() => {
-        state.rssForm.status = 'processing';
-        getFeed(url, initialState, state);
-        channels.push(url);
-      })
-      .catch((err) => {
-        state.rssForm.status = 'invalid';
-        state.rssForm.errors = err;
-      });
-    form.reset();
-    input.focus();
-  });
-};
-
-const initApp = () => {
+const app = () => {
   const defaultLanguage = 'ru';
   const i18n = i18next.createInstance();
   i18n.init({
@@ -84,11 +71,11 @@ const initApp = () => {
       });
       const initialState = {
         updatePeriod: 5000,
-        channels: [],
         feeds: [],
         posts: [],
         ui: {
           visitedLinks: [],
+          modalButtonID: '',
         },
         rssForm: {
           status: 'invalid',
@@ -107,10 +94,42 @@ const initApp = () => {
         modalMoreButton: document.querySelector('.full-article'),
         modalCloseButton: document.querySelector('.modal-footer > .btn-secondary'),
       };
+      const channels = [];
+      const state = viewWatchedState(initialState, elements, i18n);
+      const { form, input, postsContainer } = elements;
 
-      runApp(initialState, elements, i18n);
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const url = formData.get('url');
+        validateURL(channels, url)
+          .then(() => {
+            state.rssForm.status = 'processing';
+            getFeed(url, initialState, state);
+            channels.push(url);
+          })
+          .catch((err) => {
+            state.rssForm.status = 'invalid';
+            state.rssForm.errors = err;
+          });
+        form.reset();
+        input.focus();
+      });
+
+      postsContainer.addEventListener('click', (e) => {
+        switch (e.target.nodeName) {
+          case 'A':
+            processPostsLink(state, e.target);
+            break;
+          case 'BUTTON':
+            processPostsModalButton(state, e.target);
+            break;
+          default:
+            throw new Error(`Node: ${e.target.nodeName} shouldn't be processed`);
+        }
+      });
     })
     .catch((e) => console.error(e));
 };
 
-export default initApp;
+export default app;
