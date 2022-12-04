@@ -26,7 +26,7 @@ const addIDForParsedData = (data) => {
   return data.map((dataItem) => ({ ...dataItem, id: uniqueId() }));
 };
 
-const getFeed = (url, initialState, state) => {
+const getFeed = (url, state) => {
   axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`)
     .then((response) => {
       if (response.status === 200) {
@@ -43,13 +43,13 @@ const getFeed = (url, initialState, state) => {
       const newPosts = parsedPosts.filter((parsedPost) => state.posts.every(
         (post) => parsedPost.title !== post.title,
       ));
-      if (newPosts.length > 0) state.posts = [...newPosts, ...initialState.posts];
+      if (newPosts.length > 0) state.posts = [...newPosts, ...state.posts];
     })
     .catch((err) => {
       state.rssForm.status = 'invalid';
       state.rssForm.errors = err;
     })
-    .finally(() => setTimeout(() => { getFeed(url, initialState, state); }, state.updatePeriod));
+    .finally(() => setTimeout(() => { getFeed(url, state); }, state.updatePeriod));
 };
 
 const app = () => {
@@ -105,7 +105,7 @@ const app = () => {
         validateURL(channels, url)
           .then(() => {
             state.rssForm.status = 'processing';
-            getFeed(url, initialState, state);
+            getFeed(url, state);
             channels.push(url);
           })
           .catch((err) => {
