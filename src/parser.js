@@ -15,7 +15,6 @@ export default (rawXML) => {
     title: post.querySelector('title').textContent,
     description: post.querySelector('description').textContent,
     link: post.querySelector('link').textContent,
-    feedID: parsedFeed.id,
   }));
   return [parsedFeed, parsedPosts];
 };

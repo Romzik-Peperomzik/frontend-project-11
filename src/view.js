@@ -59,7 +59,7 @@ const renderPostsCard = (postsData, state, elements, i18n) => {
     a.classList.add(...state.ui.visitedLinks.includes(link) ? ['fw-normal', 'link-secondary'] : ['fw-bold']);
     Object.assign(a, { href: link, target: '_blank', rel: 'noopener noreferrer' });
     a.dataset.id = id;
-    a.innerHTML = title;
+    a.textContent = title;
     const modalButton = createModalButton(id, state, elements, i18n);
     li.append(a, modalButton);
     listGroup.append(li);
@@ -77,10 +77,10 @@ const renderFeedsCard = (feedsData, elements, i18n) => {
     li.classList.add('list-group-item', 'border-0', 'border-end-0');
     const h3 = document.createElement('h3');
     h3.classList.add('h6', 'm-0');
-    h3.innerHTML = title;
+    h3.textContent = title;
     const p = document.createElement('p');
     p.classList.add('m-0', 'small', 'text-black-50');
-    p.innerHTML = description;
+    p.textContent = description;
     li.append(h3, p);
     listGroup.append(li);
   });
