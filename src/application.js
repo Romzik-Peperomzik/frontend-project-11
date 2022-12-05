@@ -24,31 +24,20 @@ const addIDForParsedData = (data) => {
   return data.map((dataItem) => ({ ...dataItem, id: uniqueId() }));
 };
 
-const getFeed = (url, state) => {
-  axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`)
-    .then((response) => {
-      if (response.status === 200) {
-        state.rssForm.status = 'downloaded';
-        return response.data.contents;
-      }
-      throw new Error('ui.rssForm.network.responseError');
-    })
-    .then((rawXML) => {
-      const [parsedFeed, parsedPosts] = rawXMLparser(rawXML)
-        .map((parsedDataItem) => addIDForParsedData(parsedDataItem));
-      const isNewFeed = state.feeds.every(({ title }) => title !== parsedFeed.title);
-      if (isNewFeed) state.feeds.push(parsedFeed);
-      const newPosts = parsedPosts.filter((parsedPost) => state.posts.every(
-        (post) => parsedPost.title !== post.title,
-      ));
-      if (newPosts.length > 0) state.posts = [...newPosts, ...state.posts];
-    })
-    .catch((err) => {
-      state.rssForm.status = 'invalid';
-      state.rssForm.errors = err;
-    })
-    .finally(() => setTimeout(() => { getFeed(url, state); }, state.updatePeriod));
-};
+const getFeed = (url) => axios
+  .get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`)
+  .then((response) => response.data.contents);
+
+const updatePosts = (url, state) => getFeed(url)
+  .then((rawXML) => {
+    const [, parsedPosts] = rawXMLparser(rawXML)
+      .map((parsedDataItem) => addIDForParsedData(parsedDataItem));
+    const newPosts = parsedPosts.filter((parsedPost) => state.posts.every(
+      (post) => parsedPost.title !== post.title,
+    ));
+    if (newPosts.length > 0) state.posts = [...newPosts, ...state.posts];
+  })
+  .finally(() => setTimeout(() => { updatePosts(url, state); }, state.updatePeriod));
 
 const app = () => {
   const defaultLanguage = 'ru';
@@ -94,24 +83,31 @@ const app = () => {
       };
       const channels = [];
       const state = viewWatchedState(initialState, elements, i18n);
-      const { form, input, postsContainer } = elements;
+      const { form, postsContainer } = elements;
 
       form.addEventListener('submit', (e) => {
         e.preventDefault();
+        state.rssForm.status = 'processing';
         const formData = new FormData(e.target);
         const url = formData.get('url');
         validateURL(channels, url)
-          .then(() => {
-            state.rssForm.status = 'processing';
-            getFeed(url, state);
+          .then(() => getFeed(url))
+          .then((rawXML) => {
+            const [parsedFeed, parsedPosts] = rawXMLparser(rawXML)
+              .map((parsedDataItem) => addIDForParsedData(parsedDataItem));
+            state.feeds.push(parsedFeed);
+            const newPosts = parsedPosts.filter((parsedPost) => state.posts.every(
+              (post) => parsedPost.title !== post.title,
+            ));
+            if (newPosts.length > 0) state.posts = [...newPosts, ...state.posts];
             channels.push(url);
+            state.rssForm.status = 'success';
           })
+          .then(() => setTimeout(() => { updatePosts(url, state); }, state.updatePeriod))
           .catch((err) => {
             state.rssForm.status = 'invalid';
             state.rssForm.errors = err;
           });
-        form.reset();
-        input.focus();
       });
 
       postsContainer.addEventListener('click', (e) => {
