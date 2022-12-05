@@ -109,6 +109,7 @@ const renderRssFormError = (error, elements, i18n) => {
 const renderRssFormFeedback = (status, elements, i18n) => {
   renderClearForm(elements);
   const { input, formSubmitButton, feedback } = elements;
+  const { form } = elements;
   switch (status) {
     case 'invalid':
       input.classList.add('is-invalid');
@@ -117,9 +118,11 @@ const renderRssFormFeedback = (status, elements, i18n) => {
       input.setAttribute('readonly', 'true');
       formSubmitButton.setAttribute('disabled', 'disabled');
       break;
-    case 'downloaded':
+    case 'success':
       feedback.classList.add('text-success');
       feedback.textContent = i18n.t('ui.rssForm.network.successedLoad');
+      form.reset();
+      input.focus();
       break;
     default:
       throw new Error(`Unknown form render status: ${status}`);
