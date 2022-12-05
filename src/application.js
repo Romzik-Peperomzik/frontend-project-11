@@ -24,6 +24,10 @@ const addIDForParsedData = (data) => {
   return data.map((dataItem) => ({ ...dataItem, id: uniqueId() }));
 };
 
+const grabNewPosts = (posts, state) => posts.filter((parsedPost) => state.posts.every(
+  (post) => parsedPost.title !== post.title,
+));
+
 const getFeed = (url) => axios
   .get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`)
   .then((response) => response.data.contents);
@@ -32,9 +36,7 @@ const updatePosts = (url, state) => getFeed(url)
   .then((rawXML) => {
     const [, parsedPosts] = rawXMLparser(rawXML)
       .map((parsedDataItem) => addIDForParsedData(parsedDataItem));
-    const newPosts = parsedPosts.filter((parsedPost) => state.posts.every(
-      (post) => parsedPost.title !== post.title,
-    ));
+    const newPosts = grabNewPosts(parsedPosts, state);
     if (newPosts.length > 0) state.posts = [...newPosts, ...state.posts];
   })
   .finally(() => setTimeout(() => { updatePosts(url, state); }, state.updatePeriod));
@@ -96,9 +98,7 @@ const app = () => {
             const [parsedFeed, parsedPosts] = rawXMLparser(rawXML)
               .map((parsedDataItem) => addIDForParsedData(parsedDataItem));
             state.feeds.push(parsedFeed);
-            const newPosts = parsedPosts.filter((parsedPost) => state.posts.every(
-              (post) => parsedPost.title !== post.title,
-            ));
+            const newPosts = grabNewPosts(parsedPosts, state);
             if (newPosts.length > 0) state.posts = [...newPosts, ...state.posts];
             channels.push(url);
             state.rssForm.status = 'success';
