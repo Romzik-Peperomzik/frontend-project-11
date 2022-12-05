@@ -11,14 +11,12 @@ const validateURL = (channels, url) => {
   return schema.validate(url);
 };
 
-const processPostsLink = (state, linkElem) => {
-  const link = linkElem.getAttribute('href');
-  state.ui.visitedLinks.push(link);
-};
-
-const processPostsModalButton = (state, modalButtonElem) => {
-  const { id } = modalButtonElem.dataset;
+const processPostsContainer = (state, elem) => {
+  const { id } = elem.dataset;
+  const a = document.querySelector(`a[data-id='${id}']`);
+  const link = a.getAttribute('href');
   state.ui.modalButtonID = id;
+  state.ui.visitedLinks.push(link);
 };
 
 const addIDForParsedData = (data) => {
@@ -119,17 +117,15 @@ const app = () => {
       postsContainer.addEventListener('click', (e) => {
         switch (e.target.nodeName) {
           case 'A':
-            processPostsLink(state, e.target);
-            break;
           case 'BUTTON':
-            processPostsModalButton(state, e.target);
+            processPostsContainer(state, e.target);
             break;
           default:
             throw new Error(`Node: ${e.target.nodeName} shouldn't be processed`);
         }
       });
     })
-    .catch((e) => console.error(e));
+    .catch((err) => console.error(err));
 };
 
 export default app;
