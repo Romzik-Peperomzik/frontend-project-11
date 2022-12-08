@@ -1,7 +1,7 @@
 import onChange from 'on-change';
 
-const renderVisitedLink = (link) => {
-  const a = document.querySelector(`li > a[href='${link}']`);
+const renderVisitedLink = (link, elements) => {
+  const a = elements.postsContainer.querySelector(`a[href='${link}']`);
   a.classList.remove('fw-bold');
   a.classList.add('fw-normal', 'link-secondary');
 };
@@ -16,7 +16,7 @@ const renderModal = (modalButtonID, state, elements, i18n) => {
   modalMoreButton.setAttribute('href', link);
   modalMoreButton.textContent = i18n.t('ui.modal.readMore');
   modalCloseButton.textContent = i18n.t('ui.modal.close');
-  renderVisitedLink(link);
+  renderVisitedLink(link, elements);
 };
 
 const createInnerContainerElements = (titleTranslation, i18n) => {
@@ -145,7 +145,7 @@ export default (initialState, elements, i18n) => {
         renderRssFormError(value, elements, i18n);
         break;
       case 'ui.visitedLinks':
-        renderVisitedLink(value.at(-1));
+        renderVisitedLink(value.at(-1), elements);
         break;
       case 'ui.modalButtonID':
         renderModal(value, state, elements, i18n);
