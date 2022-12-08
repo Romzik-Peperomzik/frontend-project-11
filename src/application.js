@@ -8,8 +8,9 @@ import resources from './locales/index.js';
 
 const updatePeriod = 5000;
 
-const validateURL = (channels, url) => {
-  const schema = string().url().notOneOf(channels);
+const validateURL = (state, url) => {
+  const currentFeeds = state.feeds.map((feed) => feed.link);
+  const schema = string().url().notOneOf(currentFeeds);
   return schema.validate(url);
 };
 
@@ -26,14 +27,17 @@ const getFeed = (url) => axios
   .get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`)
   .then((response) => response.data.contents);
 
-const updatePosts = (url, state) => getFeed(url)
-  .then((rawXML) => {
-    const [, parsedPosts] = rawXMLparser(rawXML)
-      .map((parsedDataItem) => addIDForParsedData(parsedDataItem));
-    const newPosts = grabNewPosts(parsedPosts, state);
-    if (newPosts.length > 0) state.posts = [...newPosts, ...state.posts];
-  })
-  .finally(() => setTimeout(() => { updatePosts(url, state); }, updatePeriod));
+const updatePosts = (state) => {
+  const promises = state.feeds.map((feed) => getFeed(feed.link)
+    .then((rawXML) => {
+      const [, parsedPosts] = rawXMLparser(rawXML)
+        .map((parsedDataItem) => addIDForParsedData(parsedDataItem));
+      const newPosts = grabNewPosts(parsedPosts, state);
+      if (newPosts.length > 0) state.posts = [...newPosts, ...state.posts];
+    }));
+  Promise.all(promises)
+    .finally(() => setTimeout(() => { updatePosts(state); }, updatePeriod));
+};
 
 const app = () => {
   const defaultLanguage = 'ru';
@@ -76,7 +80,6 @@ const app = () => {
         modalMoreButton: document.querySelector('.full-article'),
         modalCloseButton: document.querySelector('.modal-footer > .btn-secondary'),
       };
-      const channels = [];
       const state = viewWatchedState(initialState, elements, i18n);
       const { form, postsContainer } = elements;
 
@@ -85,7 +88,7 @@ const app = () => {
         state.rssForm.status = 'processing';
         const formData = new FormData(e.target);
         const url = formData.get('url');
-        validateURL(channels, url)
+        validateURL(state, url)
           .then(() => getFeed(url))
           .then((rawXML) => {
             const [parsedFeed, parsedPosts] = rawXMLparser(rawXML)
@@ -93,10 +96,8 @@ const app = () => {
             state.feeds.push(parsedFeed);
             const newPosts = grabNewPosts(parsedPosts, state);
             if (newPosts.length > 0) state.posts = [...newPosts, ...state.posts];
-            channels.push(url);
             state.rssForm.status = 'success';
           })
-          .then(() => setTimeout(() => { updatePosts(url, state); }, updatePeriod))
           .catch((err) => {
             state.rssForm.status = 'invalid';
             state.rssForm.error = err;
@@ -112,6 +113,8 @@ const app = () => {
           state.ui.visitedLinks.push(link);
         }
       });
+
+      setTimeout(() => { updatePosts(state); }, updatePeriod);
     });
 };
 
