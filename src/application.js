@@ -6,6 +6,8 @@ import rawXMLparser from './parser.js';
 import viewWatchedState from './view.js';
 import resources from './locales/index.js';
 
+const updatePeriod = 5000;
+
 const validateURL = (channels, url) => {
   const schema = string().url().notOneOf(channels);
   return schema.validate(url);
@@ -39,7 +41,7 @@ const updatePosts = (url, state) => getFeed(url)
     const newPosts = grabNewPosts(parsedPosts, state);
     if (newPosts.length > 0) state.posts = [...newPosts, ...state.posts];
   })
-  .finally(() => setTimeout(() => { updatePosts(url, state); }, state.updatePeriod));
+  .finally(() => setTimeout(() => { updatePosts(url, state); }, updatePeriod));
 
 const app = () => {
   const defaultLanguage = 'ru';
@@ -59,7 +61,6 @@ const app = () => {
         },
       });
       const initialState = {
-        updatePeriod: 5000,
         feeds: [],
         posts: [],
         ui: {
@@ -68,7 +69,7 @@ const app = () => {
         },
         rssForm: {
           status: 'invalid',
-          errors: [],
+          error: '',
         },
       };
       const elements = {
@@ -103,10 +104,10 @@ const app = () => {
             channels.push(url);
             state.rssForm.status = 'success';
           })
-          .then(() => setTimeout(() => { updatePosts(url, state); }, state.updatePeriod))
+          .then(() => setTimeout(() => { updatePosts(url, state); }, updatePeriod))
           .catch((err) => {
             state.rssForm.status = 'invalid';
-            state.rssForm.errors = err;
+            state.rssForm.error = err;
           });
       });
 
@@ -120,8 +121,7 @@ const app = () => {
             throw new Error(`Node: ${e.target.nodeName} shouldn't be processed`);
         }
       });
-    })
-    .catch((err) => console.error(err));
+    });
 };
 
 export default app;

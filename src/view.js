@@ -141,7 +141,7 @@ export default (initialState, elements, i18n) => {
       case 'rssForm.status':
         renderRssFormFeedback(value, elements, i18n);
         break;
-      case 'rssForm.errors':
+      case 'rssForm.error':
         renderRssFormError(value, elements, i18n);
         break;
       case 'ui.visitedLinks':
