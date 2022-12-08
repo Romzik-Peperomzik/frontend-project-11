@@ -8,9 +8,8 @@ import resources from './locales/index.js';
 
 const updatePeriod = 5000;
 
-const validateURL = (state, url) => {
-  const currentFeeds = state.feeds.map((feed) => feed.link);
-  const schema = string().url().notOneOf(currentFeeds);
+const validateURL = (channels, url) => {
+  const schema = string().url().notOneOf(channels);
   return schema.validate(url);
 };
 
@@ -80,6 +79,7 @@ const app = () => {
         modalMoreButton: document.querySelector('.full-article'),
         modalCloseButton: document.querySelector('.modal-footer > .btn-secondary'),
       };
+      const channels = [];
       const state = viewWatchedState(initialState, elements, i18n);
       const { form, postsContainer } = elements;
 
@@ -88,7 +88,7 @@ const app = () => {
         state.rssForm.status = 'processing';
         const formData = new FormData(e.target);
         const url = formData.get('url');
-        validateURL(state, url)
+        validateURL(channels, url)
           .then(() => getFeed(url))
           .then((rawXML) => {
             const [parsedFeed, parsedPosts] = rawXMLparser(rawXML)
@@ -96,6 +96,7 @@ const app = () => {
             state.feeds.push(parsedFeed);
             const newPosts = grabNewPosts(parsedPosts, state);
             if (newPosts.length > 0) state.posts = [...newPosts, ...state.posts];
+            channels.push(url);
             state.rssForm.status = 'success';
           })
           .catch((err) => {
