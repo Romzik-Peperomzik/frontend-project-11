@@ -1,6 +1,6 @@
 import axios from 'axios';
 import i18next from 'i18next';
-import { isPlainObject, uniqueId } from 'lodash';
+import { uniqueId } from 'lodash';
 import { string, setLocale } from 'yup';
 import rawXMLparser from './parser.js';
 import viewWatchedState from './view.js';
@@ -8,19 +8,21 @@ import resources from './locales/index.js';
 
 const updatePeriod = 5000;
 
-const validateURL = (channels, url) => {
+const validateURL = (state, url) => {
+  const channels = state.feeds.map((feed) => feed.link);
   const schema = string().url().notOneOf(channels);
   return schema.validate(url);
 };
 
-const addIDForParsedData = (data) => {
-  if (isPlainObject(data)) return { ...data, id: uniqueId() };
-  return data.map((dataItem) => ({ ...dataItem, id: uniqueId() }));
-};
+const processParsedFeed = (data, url) => ({ ...data, id: uniqueId(), link: url });
 
-const grabNewPosts = (posts, state) => posts.filter((parsedPost) => state.posts.every(
-  (post) => parsedPost.title !== post.title,
-));
+const processParsedPosts = (data, feedID, state) => {
+  const newPosts = data.map((item) => ({ ...item, id: uniqueId(), feedID }));
+  return newPosts.filter((newPost) => state.posts.every(
+    (statePost) => newPost.title !== statePost.title
+      || (newPost.title === statePost.title && newPost.feedID !== statePost.feedID),
+  ));
+};
 
 const getFeed = (url) => axios
   .get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`)
@@ -29,10 +31,9 @@ const getFeed = (url) => axios
 const updatePosts = (state) => {
   const promises = state.feeds.map((feed) => getFeed(feed.link)
     .then((rawXML) => {
-      const [, parsedPosts] = rawXMLparser(rawXML)
-        .map((parsedDataItem) => addIDForParsedData(parsedDataItem));
-      const newPosts = grabNewPosts(parsedPosts, state);
-      if (newPosts.length > 0) state.posts = [...newPosts, ...state.posts];
+      const [, parsedPosts] = rawXMLparser(rawXML);
+      const postsItem = processParsedPosts(parsedPosts, feed.id, state);
+      if (postsItem.length > 0) state.posts = [...postsItem, ...state.posts];
     }));
   Promise.all(promises)
     .finally(() => setTimeout(() => { updatePosts(state); }, updatePeriod));
@@ -59,7 +60,7 @@ const app = () => {
         feeds: [],
         posts: [],
         ui: {
-          visitedLinks: [],
+          viewedPostsID: [],
           modalButtonID: '',
         },
         rssForm: {
@@ -79,7 +80,6 @@ const app = () => {
         modalMoreButton: document.querySelector('.full-article'),
         modalCloseButton: document.querySelector('.modal-footer > .btn-secondary'),
       };
-      const channels = [];
       const state = viewWatchedState(initialState, elements, i18n);
       const { form, postsContainer } = elements;
 
@@ -88,15 +88,15 @@ const app = () => {
         state.rssForm.status = 'processing';
         const formData = new FormData(e.target);
         const url = formData.get('url');
-        validateURL(channels, url)
+        validateURL(state, url)
           .then(() => getFeed(url))
           .then((rawXML) => {
-            const [parsedFeed, parsedPosts] = rawXMLparser(rawXML)
-              .map((parsedDataItem) => addIDForParsedData(parsedDataItem));
-            state.feeds.push(parsedFeed);
-            const newPosts = grabNewPosts(parsedPosts, state);
+            const [parsedFeed, parsedPosts] = rawXMLparser(rawXML);
+            const feed = processParsedFeed(parsedFeed, url);
+            state.feeds.push(feed);
+
+            const newPosts = processParsedPosts(parsedPosts, feed.id, state);
             if (newPosts.length > 0) state.posts = [...newPosts, ...state.posts];
-            channels.push(url);
             state.rssForm.status = 'success';
           })
           .catch((err) => {
@@ -109,9 +109,7 @@ const app = () => {
         const { id } = e.target.dataset;
         if (id) {
           state.ui.modalButtonID = id;
-          const a = document.querySelector(`a[data-id='${id}']`);
-          const link = a.getAttribute('href');
-          state.ui.visitedLinks.push(link);
+          if (!state.ui.viewedPostsID.includes(id)) state.ui.viewedPostsID.push(id);
         }
       });
 

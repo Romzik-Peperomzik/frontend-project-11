@@ -1,9 +1,9 @@
 import onChange from 'on-change';
 
-const renderVisitedLink = (link, elements) => {
-  const a = elements.postsContainer.querySelector(`a[href='${link}']`);
-  a.classList.remove('fw-bold');
-  a.classList.add('fw-normal', 'link-secondary');
+const renderViewedPost = (id, elements) => {
+  const postElement = elements.postsContainer.querySelector(`[data-id="${id}"]`);
+  postElement.classList.remove('fw-bold');
+  postElement.classList.add('fw-normal', 'link-secondary');
 };
 
 const renderModal = (modalButtonID, state, elements, i18n) => {
@@ -16,7 +16,7 @@ const renderModal = (modalButtonID, state, elements, i18n) => {
   modalMoreButton.setAttribute('href', link);
   modalMoreButton.textContent = i18n.t('ui.modal.readMore');
   modalCloseButton.textContent = i18n.t('ui.modal.close');
-  renderVisitedLink(link, elements);
+  renderViewedPost(modalButtonID, elements);
 };
 
 const createInnerContainerElements = (titleTranslation, i18n) => {
@@ -56,7 +56,7 @@ const renderPostsCard = (postsData, state, elements, i18n) => {
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
     const a = document.createElement('a');
-    a.classList.add(...state.ui.visitedLinks.includes(link) ? ['fw-normal', 'link-secondary'] : ['fw-bold']);
+    a.classList.add(...state.ui.viewedPostsID.includes(id) ? ['fw-normal', 'link-secondary'] : ['fw-bold']);
     Object.assign(a, { href: link, target: '_blank', rel: 'noopener noreferrer' });
     a.dataset.id = id;
     a.textContent = title;
@@ -144,8 +144,8 @@ export default (initialState, elements, i18n) => {
       case 'rssForm.error':
         renderRssFormError(value, elements, i18n);
         break;
-      case 'ui.visitedLinks':
-        renderVisitedLink(value.at(-1), elements);
+      case 'ui.viewedPostsID':
+        renderViewedPost(value.at(-1), elements);
         break;
       case 'ui.modalButtonID':
         renderModal(value, state, elements, i18n);
